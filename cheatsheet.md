@@ -1,4 +1,12 @@
 ## Basic up and running
+
+## What are pods?
+Collection of containers that need each other to run
+
+## What are services?
+Routing/port exposure/networking for the pods
+
+## Okay, cool, let's get up and running
 To run, begin with:
 `minikube start`
 
@@ -41,3 +49,32 @@ _matchLabels_ and _labels_ will be the same in most instances. **Why?**. Because
 
 ## How to get info on deployments
 `kubectl get deployments`
+
+## What to do after updating an image?
+`kubectl apply` won't notice the change, so extra work needs to be done.
+
+**Solutions:**
+* Manually delete pods: seems silly, but works, a pod will be recreated and pull the latest version of the image. You also might make the mistake of deleting the wrong set of pods, which is a big whoops.
+
+* Tagging of Docker images: works, but adds an extra step of updating the version number. You could use an environment variable for the tag, but *you can't use env variables in k8s config files*.
+
+* Use an imperative command to update the image version the deployment should use: in command line, tell k8s to update the config file with the latest version of the image, eh... but it's the best of a bad situation. All of these solutions are not very...ideal, but this is considered the best. So, to be clear, we'll tag our docker image, then use the command line to tell k8s which version we want, which will change the config file for us.
+
+Command to use new image version will be:
+`kubectl set image deployment/client-deployment client=stephengrider/multi-client:v5`
+
+or
+
+`kubectl set image <type>/<name-of-type> <name-of-pod>=<image>:<tag>`
+
+## Docker stuff
+How can we reach into the node (minikube) and play around with the docker inside there?
+
+Well, we can reconfigure the docker cli to talk to minikube
+`eval $(minikube docker-env)`
+
+then, run: `docker ps`
+
+This will only reconfigure the docker cli in your *current terminal window*. Other windows won't be affected. This change isn't permanent, and is only specific to one terminal window.
+
+This just sets up some environment variables to point docker to minikube.
