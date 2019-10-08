@@ -1,4 +1,4 @@
-## Basic up and running :ship:
+## Basic up and running. Let's set sail! :ship:
 
 ## What is minikube?
 A virtual environment you'll use to communicate with k8s when performing local development. You'll need virtualbox installed before installing minikube. Refer to the [docs](https://kubernetes.io/docs/tasks/tools/install-minikube/) for install instructions.
