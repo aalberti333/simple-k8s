@@ -9,7 +9,7 @@ Collection of containers that need each other to run. For example, Zookeeper and
 ## What are services?
 Routing/port exposure/networking for the pods. These will differ depending on whether you're running tests in a development environment (using nodeports) vs. a production environment (using clusterIP with ingress).
 
-## Okay cool, let's get up and running
+## Okay cool, let's get started
 To run, begin with:
 `minikube start`
 
