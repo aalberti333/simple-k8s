@@ -1,7 +1,7 @@
-## Basic up and running
+## Basic up and running :ship:
 
 ## What is minikube?
-A virtual environment you'll use to communicte with k8s when performing local development. You'll need virtualbox installed before installing minikube. Refer to the [docs](https://kubernetes.io/docs/tasks/tools/install-minikube/) for install instructions.
+A virtual environment you'll use to communicate with k8s when performing local development. You'll need virtualbox installed before installing minikube. Refer to the [docs](https://kubernetes.io/docs/tasks/tools/install-minikube/) for install instructions.
 
 ## What are pods?
 Collection of containers that need each other to run. For example, Zookeeper and Kafka. Kafka is unable to start without Zookeeper, so they would need to be placed together in a pod.
