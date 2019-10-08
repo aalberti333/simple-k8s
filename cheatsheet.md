@@ -1,12 +1,15 @@
 ## Basic up and running
 
+## What is minikube?
+A virtual environment you'll use to communicte with k8s when performing local development. You'll need virtualbox installed before installing minikube. Refer to the [docs](https://kubernetes.io/docs/tasks/tools/install-minikube/) for install instructions.
+
 ## What are pods?
-Collection of containers that need each other to run
+Collection of containers that need each other to run. For example, Zookeeper and Kafka. Kafka is unable to start without Zookeeper, so they would need to be placed together in a pod.
 
 ## What are services?
-Routing/port exposure/networking for the pods
+Routing/port exposure/networking for the pods. These will differ depending on whether you're running tests in a development environment (using nodeports) vs. a production environment (using clusterIP with ingress).
 
-## Okay, cool, let's get up and running
+## Okay cool, let's get up and running
 To run, begin with:
 `minikube start`
 
@@ -78,3 +81,15 @@ then, run: `docker ps`
 This will only reconfigure the docker cli in your *current terminal window*. Other windows won't be affected. This change isn't permanent, and is only specific to one terminal window.
 
 This just sets up some environment variables to point docker to minikube.
+
+
+## Nodeport vs. ClusterIP
+Services have several networking options:
+* ClusterIP: exposes a set of pods to _other objects in the cluster_ (like a docker-compose with a name of the service, but the port is not exposed). Does not allow traffic from the outside world. Traffic comes into the cluster through the **Ingress Service**
+* NodePort: exposes a set of pods to the outside world (only good for dev purposes!! like a docker-compose with ports exposed)
+* LoadBalancer: 
+* Ingress: 
+
+## Deploy multiple config files at once
+Essentially the same as deploying a single file, but just list the directory instead:
+`kubectl apply -f k8s`
