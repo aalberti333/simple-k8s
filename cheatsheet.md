@@ -93,3 +93,25 @@ Services have several networking options:
 ## Deploy multiple config files at once
 Essentially the same as deploying a single file, but just list the directory instead:
 `kubectl apply -f k8s`
+
+## Why not have all my configs in one file?
+Well, you can. Just add `---` to separate each configuration; however, separation of files lets you know how many objects you have and it's extremely clear to know what's-what if you named the files appropriately. Ultimately, it's a matter of preference.
+
+## About the types of volumes
+A quick note on replicas for databases: Having multiple replicas access the same volume without cooperation is a recipe for disaster. So, Postgres (and other databases) requires additional configuration when trying to scale up.
+
+So what does _volume_ mean in the world of k8s? It means an object that allows a container to store data at the pod level. (This is a bit different than the generic terminology, which would be some type of mechanism that allows a container to access a filesystem outside itself).
+
+Let's look at the 3 types:
+* persistent volume claim (we want this)
+* persistent volume (we want this)
+* volume (we don't want this for data that needs to last, note exactly the same thing as a Docker volume!!)
+
+### Why not use volume?
+A k8s volume belongs to a specific pod. It can be accessed by anything inside that pod. The benefit? If a specific pod container dies and restarts inside the pod, then the new container has access to anything in the volume. However, the volume is tied to the pod, so if the pod ever dies/gets recreated/ terminated/ whatever, **the volume does too**. So, a volume is not appropriate for saving data in a database.
+
+### Persistent volume
+A persistent volume is long term durable storage that's not tied to a specific pod or a specific container. This way, if a pod crashes/recreated/whatever, the volume still lasts and can be reconnected to.
+
+### Persistent volume claim
+Let's say you have a pod configuration. You have multiple storage options for it. A PVC is an advertisement (can't store anything, just an advertisement) saying "here are the different options that you have access to for storage inside of this cluster". We will write these claims in the config files: "there should be these options for my config, this is something I can get for my pod when it's created". So when you ask for it, k8s looks through persistent volumes that are readily available (these are called statically provisioned persistent volumes). These were created ahead of time, that can be used right away for storage. If k8s can't find what you're looking for, the persistent volume is created on the fly (these are called dynamically provisioned persistent volumes, it's not created ahead of time, just when you ask for it).
