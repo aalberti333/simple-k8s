@@ -3,6 +3,9 @@
 ## What is minikube?
 A virtual environment you'll use to communicate with k8s when performing local development. You'll need virtualbox installed before installing minikube. Refer to the [docs](https://kubernetes.io/docs/tasks/tools/install-minikube/) for install instructions.
 
+## What is kubectl?
+Command line tool which interacts with a k8s cluster. In our case, we'll be interacting with minikube. More info can be found in the [docs](https://kubernetes.io/docs/reference/kubectl/overview/)
+
 ## What are pods?
 Collection of containers that need each other to run. For example, Zookeeper and Kafka. Kafka is unable to start without Zookeeper, so they would need to be placed together in a pod.
 
@@ -70,7 +73,7 @@ or
 
 `kubectl set image <type>/<name-of-type> <name-of-pod>=<image>:<tag>`
 
-## Docker stuff
+## Docker stuff :whale:
 How can we reach into the node (minikube) and play around with the docker inside there?
 
 Well, we can reconfigure the docker cli to talk to minikube
@@ -115,3 +118,45 @@ A persistent volume is long term durable storage that's not tied to a specific p
 
 ### Persistent volume claim
 Let's say you have a pod configuration. You have multiple storage options for it. A PVC is an advertisement (can't store anything, just an advertisement) saying "here are the different options that you have access to for storage inside of this cluster". We will write these claims in the config files: "there should be these options for my config, this is something I can get for my pod when it's created". So when you ask for it, k8s looks through persistent volumes that are readily available (these are called statically provisioned persistent volumes). These were created ahead of time, that can be used right away for storage. If k8s can't find what you're looking for, the persistent volume is created on the fly (these are called dynamically provisioned persistent volumes, it's not created ahead of time, just when you ask for it).
+
+#### Breaking down PVC config
+* Access Modes have three types:
+    * ReadWriteOnce: Can be used by a single node
+    * ReadOnlyMany: Multiple nodes can read from this
+    * ReadWriteMany can read and written to by many nodes
+
+* Resources
+    * Storage: amount of space needed
+
+To check options for storage, you can run:
+`kubectl get storageclass`
+
+For more storage info, run
+`kubectl describe storageclass`
+
+Storage class options are [here](https://kubernetes.io/docs/concepts/storage/storage-classes/#provisioner). You'll usually use the default options, this is where k8s will look for storage. Our default is minikube, but in production you will likely be using one of these defaults and need to specify which one.
+
+After applying, you can check these stats with:
+
+`kubectl get pv`
+
+`kubectl get pvc`
+
+### Environment variables
+Pretty similar to docker compose. You'll use a key named `env` in your container values which contains `name` and `value`. These need to be string values, so wrap any port numbers in `''`.
+
+#### Secrets
+Used to securely store a piece of info in the cluster, such as a database password. Unlike other objects (Pods, Deployments, Services), this will not be created with a config file. This instead will be created with an imperative command (Gotta keep it secret! Snitches get stiches).
+
+Here's how to create one:
+
+`kubectl create secret generic <secret_name> --from-literal key=value`
+
+* `generic`: Type of secret (used vast majority of the time). Other types are `docker-registry` and `tls` (for https stuff)
+
+* `--from-literal`: We're going to add the secret into this command, as opposed to from a file 
+
+We're going to run:
+`kubectl create secret generic pgpassword --from-literal PGPASSWORD=12345asdf`
+
+Then use `kubectl get secrets` to verify.
