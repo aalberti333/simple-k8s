@@ -90,8 +90,8 @@ This just sets up some environment variables to point docker to minikube.
 Services have several networking options:
 * ClusterIP: exposes a set of pods to _other objects in the cluster_ (like a docker-compose with a name of the service, but the port is not exposed). Does not allow traffic from the outside world. Traffic comes into the cluster through the **Ingress Service**
 * NodePort: exposes a set of pods to the outside world (only good for dev purposes!! like a docker-compose with ports exposed)
-* LoadBalancer: 
-* Ingress: 
+* LoadBalancer: Legacy way of getting network traffic into a cluster
+* Ingress: Exposes a set of services to the outside world 
 
 ## Deploy multiple config files at once
 Essentially the same as deploying a single file, but just list the directory instead:
@@ -160,3 +160,32 @@ We're going to run:
 `kubectl create secret generic pgpassword --from-literal PGPASSWORD=12345asdf`
 
 Then use `kubectl get secrets` to verify.
+
+#### Load Balancer
+Legacy way of getting network traffic into a cluster.
+
+Does a couple things. You would make a configuration file of type service and subtype load balancer. Setting this up allows access to *only one* specific deployment (one set of pods). Load balancer service will also reach out to your cloud provider, and create a load balancer using their configuration of what that is (whatever AWS, or Google Cloud defines that to be) for your chosen specifc deployment.
+
+**We're not going to use this, supposedly it's deprecated**. Instead, we'll be using *Ingres*. This will allow access to multiple deployments.
+
+#### Ingres
+Several specific implementations of Ingress.
+
+**We are using ingress-nginx, a community project led by k8s** [here](github.com/kubernetes/ingress-nginx)
+
+**We will not be using kubernetes-ingres, a project led by the company nginx** [here](github.com/nginxinc/kubernetes-ingress)
+
+BE CAREFUL ABOUT THIS! They are nearly identical. Again, we'll be using *ingress-nginx*
+
+The setup of this ingress will be different depending on your cloud provider. We'll be setting it up:
+
+1. On our local machine
+2. On Google Cloud (more on this later)
+
+### How it works (kinda...)
+A **controller** is any type of object that constantly works to make some desired state a reality inside of our cluster. Ingress will work the same way, it has a controller. When we feed in this config file, the controller will create a pod running nginx that's going to have a particular set of rules to make sure traffic comes in and gets sent off to the appropriate different services inside of our cluster.
+
+Ingress config -> Ingress controller (once fed into kubectl) -> creates something that accepts incoming traffic (for ingress-nginx, this will actually be the same thing as the controller. This may not be the case for other Ingress choices) -> sends traffic to multiple deployments.
+
+#### Minikube Dashboard
+Run `minikube dashboard` to see the dashboard! Pretty cool! Stuff can be created/deleted/edited from here, but it's not recommended (think about doing this with code on Github, it's better practice to do everything locally and send those changes up)
