@@ -73,7 +73,7 @@ or
 
 `kubectl set image <type>/<name-of-type> <name-of-pod>=<image>:<tag>`
 
-## Docker stuff :whale:
+## Talking to Docker inside minikube :whale:
 How can we reach into the node (minikube) and play around with the docker inside there?
 
 Well, we can reconfigure the docker cli to talk to minikube
@@ -189,3 +189,21 @@ Ingress config -> Ingress controller (once fed into kubectl) -> creates somethin
 
 #### Minikube Dashboard
 Run `minikube dashboard` to see the dashboard! Pretty cool! Stuff can be created/deleted/edited from here, but it's not recommended (think about doing this with code on Github, it's better practice to do everything locally and send those changes up)
+
+### Deploying
+You can run a `deploy.sh` script instide your CI. You can find that [here](./simple_k8s/deploy.sh). Remember to *tag your images!* Without changing the tag, the image will not update. K8s will say "Hmm, you pushed a latest, but I'm already running latest, so I'm not going to do anything since these are the same thing". Creating a unique tag is required for k8s to update.
+
+So what should we do? Tag it twice:
+
+1. `<my-image>:latest`
+2. `<my-image>:$GIT_SHA`
+
+Where you will copy/paste your GIT_SHA in `$GIT_SHA`.
+
+Using a unique SHA for every deploy will also allow you to roll back your deployed images if something ever goes wrong to test which deployment caused the issue.
+
+#### So why still use "latest"?
+Let's say a new engineer runs `kubectl apply -f k8s` to test development locally. This way, if the engineer wants to pull the newest version of the image, they won't have to know the SHA to get the newest version.
+
+#### Getting the SHA
+You can set an environment variable in CI by running: `SHA=$(git rev-parse HEAD)`.
