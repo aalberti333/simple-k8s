@@ -207,3 +207,21 @@ Let's say a new engineer runs `kubectl apply -f k8s` to test development locally
 
 #### Getting the SHA
 You can set an environment variable in CI by running: `SHA=$(git rev-parse HEAD)`.
+
+#### Helm (and its friends)
+[Helm](https://helm.sh/) helps you manage k8s applications. Helm Charts help you define, install, and upgrade even the most complex k8s application. (Charts are packages of pre-configured k8s resources). You would use Helm to install something like Ingress-NGINX.
+
+It's essentially a tool that streamlines installing and managing k8s applications. Think of it like apt/yum/homebrew for k8s. It works directly with **Tiller**, a pod with Tiller will run inside our cluster, and will make changes to the inside of our cluster. It will try to install new sets of configs, new secrets, new sets of deployments, whatever else it might be. But to do this, Tiller needs permission to.
+
+**RBAC** is Role Based Access Control. It limits who can access and modify objects in our cluster. Tiller wants to make changes to our cluster, so it needs to get some permission set. Some RBAC terminology:
+
+* User Accounts: Identifies a *person* administering our cluster
+* Service Accounts: Identifies a *pod* administering a cluster
+* ClusterRoleBinding: Authorizes an account to do a certain set of actions across the entire cluster
+* RoleBinding: Authorizes an account to do a certain set of actions in a *single namespace*
+
+`kubectl create serviceaccount --namespace kube-system tiller`: Create a new service account called tiller in the kube-system namespace
+
+`kubectl create clusterrolebinding tiller-cluster-rule --clusterrole=cluster-admin --serviceaccount=kube-system:tiller`: Create a new clusterrolebinding with the role 'cluster-admin' and assign it to the service account 'tiller'
+
+After running the above commands, we should be able to use Helm.
