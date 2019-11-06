@@ -225,3 +225,15 @@ It's essentially a tool that streamlines installing and managing k8s application
 `kubectl create clusterrolebinding tiller-cluster-rule --clusterrole=cluster-admin --serviceaccount=kube-system:tiller`: Create a new clusterrolebinding with the role 'cluster-admin' and assign it to the service account 'tiller'
 
 After running the above commands, we should be able to use Helm.
+
+### Local development with Skaffold
+Skaffold is a commandline tool designed to be used with k8s to be used for local development. Skaffold watches a project directory for changes, and when it sees a change, it jumps into action. It will take that change and get it reflected in the k8s cluster. It can do this in one of two modes:
+
+1. Rebuild client image from scratch, update k8s
+2. Inject updated files into a pod, rely on app to automatically update itself
+
+In our case, because react has hot reload and nodemon is being used, method 2 will be used here.
+
+Run `skaffold dev` in the same directory as the [skaffold.yml](./simple_k8s/skaffold.yml) file to run.
+
+Skaffold will also clean-up its own environment for you, so long as you add them to the **manifests** section of [skaffold.yml](./simple_k8s/skaffold.yml). However, if you have anything persistent (like volumes/databases/etc) it's recommended not to add those in **manifests**.

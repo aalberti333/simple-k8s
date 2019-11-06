@@ -1,0 +1,32 @@
+apiVersion: skaffold/v1beta2
+kind: Config
+build:
+  local:
+    push: false
+  artifacts:
+    - image: stephengrider/multi-client
+      context: client #which folder
+      docker:
+        dockerfile: Dockerfile.dev #which dockerfile in context
+      sync:
+        '**/*.js': . #look for changes of this filetype, inject them to pod if changed
+        '**/*.css': .
+        '**/*.html': .
+    - image: stephengrider/multi-server
+      context: server
+      docker:
+        dockerfile: Dockerfile.dev
+      sync:
+        '**/*.js': .
+    - image: stephengrider/multi-worker
+      context: worker
+      docker:
+        dockerfile: Dockerfile.dev
+      sync:
+        '**/*.js': .
+deploy:
+  kubectl:
+    manifests:
+      - k8s/client-deployment.yml
+
+      
